@@ -139,7 +139,7 @@ def find_lane_pixels(binary_warped):
 
 
 
-def fit_polynomial(binary_warped):
+def fit_polynomial(binary_warped,video=False):
     # Find our lane pixels first
     leftx, lefty, rightx, righty, out_img = find_lane_pixels(binary_warped)
 
@@ -160,15 +160,25 @@ def fit_polynomial(binary_warped):
         print('The function failed to fit a line!')
         left_fitx = 1*ploty**2 + 1*ploty
         right_fitx = 1*ploty**2 + 1*ploty
+        
+        
 
     ## Visualization ##
     # Colors in the left and right lane regions
+    
+    #We just want to plot the identified images
+    out_img=np.zeros_like(out_img)
     out_img[lefty, leftx] = [255, 0, 0]
     out_img[righty, rightx] = [0, 0, 255]
+    
+    
+    
 
     # Plots the left and right polynomials on the lane lines
-    plt.plot(left_fitx,ploty, color='yellow')
-    plt.plot(right_fitx, ploty, color='yellow')
+    # Set a conditional in case it is used in the video pipeline
+    if video==False:
+        plt.plot(left_fitx,ploty, color='yellow')
+        plt.plot(right_fitx, ploty, color='yellow')
 
     return left_fit, right_fit, out_img
 
@@ -198,7 +208,7 @@ def measure_curvature_distance_real(binary_warped,left_fit, right_fit,x_l,y_l):
     right_midx = right_fit[0]*center_y**2 + right_fit[1]*center_y + right_fit[2]
     mid_lane_x=(left_midx+right_midx)//2
     cv2.line(binary_warped,(np.int(center_x),np.int(center_y)),(np.int(mid_lane_x),np.int(center_y)),(255,255,0),2)
-    distance=np.abs(mid_lane_x - midpoint_x) * xm_per_pix
+    distance=np.abs(mid_lane_x - center_x) * xm_per_pix
     return left_curverad, right_curverad, distance, binary_warped
 
 
