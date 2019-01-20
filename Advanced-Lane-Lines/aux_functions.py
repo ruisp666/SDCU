@@ -13,8 +13,6 @@ import matplotlib.image as mpimg
 def pipeline_grad_color_thresh(img, s_thresh=(120, 255), sx_thresh=(20, 140)):
     # Convert to HLS color space and separate the S channel
     hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
-    #h_channel=hls[:,:,0]
-    #l_channel = hls[:,:,1]
     s_channel = hls[:,:,2]
         
     # Sobel x
@@ -29,6 +27,7 @@ def pipeline_grad_color_thresh(img, s_thresh=(120, 255), sx_thresh=(20, 140)):
     # Threshold color channel
     s_binary = np.zeros_like(s_channel)
     s_binary[(s_channel >= s_thresh[0]) & (s_channel <= s_thresh[1])] = 1
+    
     # Stack each channel
     color_binary = np.dstack(( np.zeros_like(sxbinary), sxbinary, s_binary)) * 255
     return color_binary
@@ -80,9 +79,7 @@ def find_lane_pixels(binary_warped):
     window_height = np.int(binary_warped.shape[0]//nwindows)
     # Identify the x and y positions of all nonzero pixels in the image
     nonzero = binary_warped.nonzero()
-    #print(binary_warped.shape)
     nonzeroy = np.array(nonzero[0])
-    #print(np.array(nonzero).shape)
     nonzerox = np.array(nonzero[1])
     #print(nonzerox.shape)
     # Current positions to be updated later for each window in nwindows
@@ -121,7 +118,7 @@ def find_lane_pixels(binary_warped):
         good_right_inds[1][:]+=win_xright_low
         
         right_lane_inds.append(good_right_inds)
-        ### TO-DO: If you found > minpix pixels, recenter next window ###
+        ### f you found > minpix pixels, recenter next window ###
  
         if len(good_left_inds[0])> minpix:
             leftx_current=int(good_left_inds[1].mean())
@@ -160,28 +157,29 @@ def fit_polynomial(binary_warped,video=False):
         print('The function failed to fit a line!')
         left_fitx = 1*ploty**2 + 1*ploty
         right_fitx = 1*ploty**2 + 1*ploty
-        
-        
-
     ## Visualization ##
     # Colors in the left and right lane regions
-    
     #We just want to plot the identified images
     out_img=np.zeros_like(out_img)
     out_img[lefty, leftx] = [255, 0, 0]
     out_img[righty, rightx] = [0, 0, 255]
     
-    
+    #for i in range(len(lefty)):
+     #   out_img[lefty[i]:righty[i], leftx[i]:rightx[i]]=[0,255,255]
     
 
-    # Plots the left and right polynomials on the lane lines
+# Plots the left and right polynomials on the lane lines
     # Set a conditional in case it is used in the video pipeline
     if video==False:
         plt.plot(left_fitx,ploty, color='yellow')
         plt.plot(right_fitx, ploty, color='yellow')
-
+    #Draw the rectangle between the lanes
+    left_p=np.array(list(zip(left_fitx,ploty))).astype(np.int32)
+    right_p=np.array(list(zip(right_fitx,ploty))).astype(np.int32)
+    right_p=np.flipud(right_p)
+    p=np.concatenate((left_p, right_p))
+    cv2.fillPoly(out_img, [p], color=[150,255,180])
     return left_fit, right_fit, out_img
-
 
 def measure_curvature_distance_real(binary_warped,left_fit, right_fit,x_l,y_l):
     '''
@@ -207,10 +205,10 @@ def measure_curvature_distance_real(binary_warped,left_fit, right_fit,x_l,y_l):
     left_midx = left_fit[0]*center_y**2 + left_fit[1]*center_y + left_fit[2]
     right_midx = right_fit[0]*center_y**2 + right_fit[1]*center_y + right_fit[2]
     mid_lane_x=(left_midx+right_midx)//2
-    cv2.line(binary_warped,(np.int(center_x),np.int(center_y)),(np.int(mid_lane_x),np.int(center_y)),(255,255,0),2)
+    #cv2.line(binary_warped,(np.int(center_x),np.int(center_y)),(np.int(mid_lane_x),np.int(center_y)),(255,255,0),2)
+    
     distance=np.abs(mid_lane_x - center_x) * xm_per_pix
     return left_curverad, right_curverad, distance, binary_warped
 
 
-
-
+    
