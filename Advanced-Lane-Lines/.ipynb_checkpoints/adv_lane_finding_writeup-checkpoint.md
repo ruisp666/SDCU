@@ -312,9 +312,13 @@ We can now print the curvature and distance values. I used the lines
     cv2.putText(resulting, "Distance to mid-lane: "+ str(round(distance,2)) + "m", (750, 150), cv2.FONT_ITALIC, 1.1,  (255, 255, 255), thickness=3, lineType=cv2.LINE_AA)
 
 which produce the image
+
+
 <img height=200 width=300 src="pipeline_images/pipeline_output.jpg"
      alt="gray per"
      style="float: center;" />
+     
+ Although the estimate for the right lane is quite reasonable, the radius of the left lane is not. After several trials, this was the best result I was able to obtain. I decided that it was best to find an output where one of the curvatures was accurate, rather than trying to obtain a higher average number (around 3 km).
 
 ####  9. Process the video.
 
@@ -327,7 +331,8 @@ Here, defined a pipeline function that can be seen in the first code cell of sec
      style="float: center;" />
 
 
-
+We can see that the overall result was quite satisfactory.
 
 ##### Briefly discuss any problems / issues you faced in your implementation of this project. Where will your pipeline likely fail? What could you do to make it more robust?
 
+# Please refer to the notebook. We can see that that algorithm breaks if we try to implement it in the challenge video. I have tried to come around that problem with a re-implementation based on the use of smaller windows around the previous frame. This implementation did not brake when the new pipeline was applied to the challenge video. However, the lane identification performed very poorly from the begining, given the presence of the bridge. One possible way of improving this implementation would be to take averages of frames and see the changes in the pixel values, and from there try to identify objects that do not make part of the lanes.
