@@ -179,9 +179,9 @@ def fit_polynomial(binary_warped,video=False):
     right_p=np.flipud(right_p)
     p=np.concatenate((left_p, right_p))
     cv2.fillPoly(out_img, [p], color=[150,255,180])
-    return left_fit, right_fit, out_img
+    return leftx,rightx, lefty,righty, out_img
 
-def measure_curvature_distance_real(binary_warped,left_fit, right_fit,x_l,y_l):
+def measure_curvature_distance_real(binary_warped,leftx, rightx, lefty,righty, x_l,y_l):
     '''
     Calculates the curvature  of the road and the vehicle distance from the center in meters.
     '''
@@ -193,7 +193,8 @@ def measure_curvature_distance_real(binary_warped,left_fit, right_fit,x_l,y_l):
     # We'll choose the maximum y-value, corresponding to the bottom of the image
     ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
     y_eval = np.max(ploty)*ym_per_pix
-    
+    left_fit= np.polyfit(lefty*ym_per_pix,leftx*xm_per_pix,2)
+    right_fit= np.polyfit(righty*ym_per_pix,rightx*xm_per_pix,2)
     left_curverad = (1+(2*left_fit[0]*y_eval+left_fit[1])**2)**(3/2)/(2*np.abs(left_fit[0]))
     
     right_curverad = (1+(2*right_fit[0]*y_eval+right_fit[1])**2)**(3/2)/(2*np.abs(right_fit[0])) 

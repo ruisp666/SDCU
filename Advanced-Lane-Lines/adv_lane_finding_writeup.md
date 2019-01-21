@@ -190,7 +190,7 @@ and this shows the transformation corresponds to what is expected.
 #### 5. Detect lane pixels and fit to find the lane boundary.
 
 
-Here, before we applied the detection algorithm, we did some pre-proccesing to the perspective image above. Namely, we have:
+Here, before applying the detection algorithm, we did some pre-proccesing to the perspective image above. Namely, we have:
 
 
 
@@ -231,10 +231,14 @@ This task was accomplished with the help of the function measure_curvature_dista
 
 binary_warped:The binary threshold image
 
-left_fit: The array containing the three coefficients associated with the left polynomial   
+leftx: The x points to fit a polynomial to the  the left lane
 
-right_fit:
-The array containing the three coefficients associated with the right polynomial
+rightx: The x points to fit a polynomial to the  the right lane
+
+righty: The y points to fit a polynomial to the right lane
+
+lefty: The y points to fit a poynomial to the left lane
+
 
 x_l: the width of the scanning region
 
@@ -254,12 +258,21 @@ Illustrating for the left-lane, its curvatures is caclulated with the help of th
 
     ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
     y_eval = np.max(ploty)*ym_per_pix
+    left_fit= np.polyfit(lefty*ym_per_pix,leftx*xm_per_pix,2)
+    right_fit= np.polyfit(righty*ym_per_pix,rightx*xm_per_pix,2)
     left_curverad = (1+(2*left_fit[0]*y_eval+left_fit[1])**2)**(3/2)/(2*np.abs(left_fit[0]))
+    right_curverad = (1+(2*right_fit[0]*y_eval+right_fit[1])**2)**(3/2)/(2*np.abs(right_fit[0])) 
 
-Where the third line is just the implementation of the formula given in the classes.
-Moreover, the number of meters per pixel in the y direction is given by
+where,
+     
+     xm_per_pix = 3.7/x_l
+     ym_per_pix = 30/y_l
+     
 
-     ym_per_pix = 30/y_l 
+
+
+Where lines 5-6 are just the implementation of the formula given in the classes. Note that we first re-fit the polynomial, this time with the rescaled coordinates.
+
 As to the distance, we can take the center of the image and calculate its horizontal distance from the center of the lane. The coordinates of the center of the image can be calculated with
 
     center_x=binary_warped.shape[1]//2
@@ -318,7 +331,7 @@ which produce the image
      alt="gray per"
      style="float: center;" />
      
- Although the estimate for the right lane is quite reasonable, the radius of the left lane is not. After several trials, this was the best result I was able to obtain. I decided that it was best to find an output where one of the curvatures was accurate, rather than trying to obtain a higher average number (around 3 km).
+Both estimates for the left and right ROC look ok.
 
 ####  9. Process the video.
 
