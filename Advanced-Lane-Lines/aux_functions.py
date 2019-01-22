@@ -199,16 +199,18 @@ def measure_curvature_distance_real(binary_warped,leftx, rightx, lefty,righty, x
     
     right_curverad = (1+(2*right_fit[0]*y_eval+right_fit[1])**2)**(3/2)/(2*np.abs(right_fit[0])) 
     
-    # Determine the center of the image
-    center_x=binary_warped.shape[1]//2*xm_per_pix
-    center_y=binary_warped.shape[0]//2*ym_per_pix
+    # Determine the center of the image, we fit again the poly
+    center_x=binary_warped.shape[1]//2
+    center_y=binary_warped.shape[0]-1
+    left_fit= np.polyfit(lefty,leftx,2)
+    right_fit= np.polyfit(righty,rightx,2)
     # The height of the points is the same, the center of the lane is at the level of the center of the image, and is given as the midpoint between the left and right polynomial fit given at y=binary_warped.shape[0]//2
     left_midx = left_fit[0]*center_y**2 + left_fit[1]*center_y + left_fit[2]
     right_midx = right_fit[0]*center_y**2 + right_fit[1]*center_y + right_fit[2]
-    mid_lane_x=(right_midx-left_midx)//2
+    mid_lane_x=(right_midx+left_midx)//2
     #cv2.line(binary_warped,(np.int(center_x),np.int(center_y)),(np.int(mid_lane_x),np.int(center_y)),(255,255,0),2)
     
-    distance=np.abs(mid_lane_x - center_x) 
+    distance=np.abs(mid_lane_x - center_x) * xm_per_pix
     return left_curverad, right_curverad, distance, binary_warped
 
 

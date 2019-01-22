@@ -273,18 +273,23 @@ where,
 
 Where lines 5-6 are just the implementation of the formula given in the classes. Note that we first re-fit the polynomial, this time with the rescaled coordinates.
 
-As to the distance, we can take the center of the image and calculate its horizontal distance from the center of the lane. The coordinates of the center of the image can be calculated with
+As to the distance, we start by defining the coordinates
 
     center_x=binary_warped.shape[1]//2
-    center_y=binary_warped.shape[0]//2
+    center_y=binary_warped.shape[0]-1
+    
+ Note that center_y is the height at which the camera is when we assume that it is at the base of the image.
 
-while the center of the lane is the output of the following three lines,
+while the center of the lane is the output of the following five lines,
 
+    left_fit= np.polyfit(lefty,leftx,2)
+    right_fit= np.polyfit(righty,rightx,2)
+  
     left_midx = left_fit[0]*center_y**2 + left_fit[1]*center_y + left_fit[2]
     right_midx = right_fit[0]*center_y**2 + right_fit[1]*center_y + right_fit[2]
-    mid_lane_x=(left_midx+right_midx)//2
+    mid_lane_x=(right_midx+left_midx)//2
     
-where in the first two lines we calculate the image of each of the polynomials for the point center_y, and the last line we take the average of those two images.
+where on lines 1-2 we refit the polynomial, on lines 3-4 we calculate the image of each of the polynomials for the point center_y, and the last line we take the average of those two images.
 
 The distance is then 
         
